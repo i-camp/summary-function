@@ -25,9 +25,9 @@ exports.summaryScore = functions.pubsub.topic('every-minute-tick').onPublish(eve
 });
 
 const summaryObservation = currentGame => {
-  let current_game_commits_ref = db.ref(`/commits/${currentGame.id}`);
+  let currentGameCommitsRef = db.ref(`/commits/${currentGame.id}`);
   let targets = targets();
-  current_game_commits_ref.on("value", snapshot => {
+  currentGameCommitsRef.on("value", snapshot => {
     console.log(snapshot.val());
 
     let target = snapshot.val().target;
