@@ -24,43 +24,56 @@ exports.summaryScore = functions.pubsub.topic('every-minute-tick').onPublish(eve
 
 const summaryObservation = currentGame => {
   let currentGameCommitsRef = db.ref(`/commits/${currentGame.id}`);
-  let targets = targets();
-  currentGameCommitsRef.once("value", snapshot => {
-    console.log(snapshot.val());
-    targets.addTarget(snapshot.val().target);
-    targets.addPlus(target, snapshot.val().plus);
-    targets.addMinus(target, snapshot.val().minus);
+  let targets = targetsFnc();
+
+  currentGameCommitsRef.on("value", snapshot => {
+   for (let key in snapshot.val()) {
+      let target = snapshot.val()[key].target;
+      targets.addTarget(target);
+      targets.addPlus(target, snapshot.val()[key].plus);
+      targets.addMinus(target, snapshot.val()[key].minus);
+    };
+    
   });
 
-  console.log(targets);
-  Object.keys(targets.targets).forEach(name => {
-    console.log(targets.targets[name]);
-    Object.keys(currentGame.targets).forEach(key => {
+  for (let name in targets.getTargets()) {
+    for (let key in currentGame.targets) {
       if (currentGame.targets[key].name === name) {
         // まとめたデータをcurrentGameに戻す
         db.ref(`/currentGame/${currentGame.id}/targets/${key}`).update({
-          plusPoin: targets.targets[name].plus,
-          minusPoint: targets.targets[name].minus
+          plusPoin: targets.getPlus(name),
+          minusPoint: targets.getMinus(name)
         });
       } 
-    });
-  });
+    };
+  };
   
 };
 
-const targets = () => {
+let targetsFnc = () => {
+  let targets = {};
   return {
-    targets: [],
+    getTargets: () => {
+      return targets;
+    },
     addTarget: (name) => {
-      if (this.targets[name] === undefined) {
-        this.targets[name] = {plus, minus};
+      if (targets[name] === undefined) {
+        targets[name] = {
+          plus: 0, minus: 0
+        };
       }
     },
     addPlus: (name, score) => {
-      this.targets[name].plus = this.targets[name].plus + score;
+      targets[name].plus + score;
     },
     addMinus: (name, score) => {
-      this.targets[name].minus = this.targets[name].minus + score;
+      targets[name].minus + score;
+    },
+    getPlus: name => {
+      return targets[name].plus;
+    },
+    getMinus: name => {
+      return targets[name].minus;
     }
-  }; 
+  }
 };
