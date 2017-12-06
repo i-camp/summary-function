@@ -9,13 +9,14 @@ const currentGameRef = db.ref("/currentGame");
 exports.summaryScore = functions.pubsub.topic('every-minute-tick').onPublish(event => {
 
   currentGameRef.on("value", snapshot => {
-    // console.log(snapshot.val());
+    console.log(snapshot.val());
     let currentGame = snapshot.val();
 
     // ゲームが開始されていること
     if (
       currentGame.id !== undefined
       && currentGame.openedAt !== undefined
+      && currentGame.endAt === undefined
     ) {
       summaryObservation(currentGame);
     }
@@ -27,18 +28,28 @@ exports.summaryScore = functions.pubsub.topic('every-minute-tick').onPublish(eve
 const summaryObservation = currentGame => {
   let currentGameCommitsRef = db.ref(`/commits/${currentGame.id}`);
   let targets = targets();
-  currentGameCommitsRef.on("value", snapshot => {
+  currentGameCommitsRef.once("value", snapshot => {
     console.log(snapshot.val());
-
-    let target = snapshot.val().target;
-    targets.addTarget(target);
+    targets.addTarget(snapshot.val().target);
     targets.addPlus(target, snapshot.val().plus);
     targets.addMinus(target, snapshot.val().minus);
   });
-  // TODO まとめたデータをcurrentGameに戻す
+  console.log(targets);
+  
   Object.keys(targets.targets).forEach(name => {
     console.log(targets.targets[name]);
+    Object.keys(currentGame.targets).forEach(key => {
+      if (currentGame.targets[key].name === name) {
+        // まとめたデータをcurrentGameに戻す
+        db.ref(`/currentGame/${currentGame.id}/targets/${key}`).update({
+          plusPoin: targets.targets[name].plus,
+          minusPoint: targets.targets[name].minus
+        });
+      } 
+    });
   });
+  
+  
 };
 
 let targets = () => {
