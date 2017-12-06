@@ -9,14 +9,11 @@ const currentGameRef = db.ref("/currentGame");
 exports.summaryScore = functions.pubsub.topic('every-minute-tick').onPublish(event => {
 
   currentGameRef.on("value", snapshot => {
-    console.log(snapshot.val());
     let currentGame = snapshot.val();
-
     // ゲームが開始されていること
     if (
       currentGame.id !== undefined
       && currentGame.openedAt !== undefined
-      && currentGame.endAt === undefined
     ) {
       summaryObservation(currentGame);
     }
@@ -34,8 +31,8 @@ const summaryObservation = currentGame => {
     targets.addPlus(target, snapshot.val().plus);
     targets.addMinus(target, snapshot.val().minus);
   });
+
   console.log(targets);
-  
   Object.keys(targets.targets).forEach(name => {
     console.log(targets.targets[name]);
     Object.keys(currentGame.targets).forEach(key => {
@@ -49,10 +46,9 @@ const summaryObservation = currentGame => {
     });
   });
   
-  
 };
 
-let targets = () => {
+const targets = () => {
   return {
     targets: [],
     addTarget: (name) => {
