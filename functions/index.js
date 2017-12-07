@@ -38,8 +38,11 @@ const summaryObservation = currentGame => {
   
   currentGameCommitsRef.once("value", snapshot => {
     for (let commit of snapshot.val()) {
-      targetFnc.addPlus(commit.target, commit.plus);
-      targetFnc.addMinus(commit.target, commit.minus);
+      // currentGameのtargetsにあること
+      if (typeof targets[commit.target] !== "undefined") {
+        targetFnc.addPlus(commit.target, commit.plus);
+        targetFnc.addMinus(commit.target, commit.minus);
+      }
     };
 
     // まとめたデータをcurrentGameに戻す
