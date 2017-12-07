@@ -8,7 +8,7 @@ const currentGameRef = db.ref("/currentGame");
 
 exports.summaryScore = functions.pubsub.topic('every-minute-tick').onPublish(event => {
 
-  currentGameRef.on("value", snapshot => {
+  currentGameRef.once("value", snapshot => {
     let currentGame = snapshot.val();
     // ゲームが開始されていること
     if (
@@ -22,58 +22,40 @@ exports.summaryScore = functions.pubsub.topic('every-minute-tick').onPublish(eve
 
 });
 
+let targets = {};
+
 const summaryObservation = currentGame => {
-  let currentGameCommitsRef = db.ref(`/commits/${currentGame.id}`);
-  let targets = targetsFnc();
 
-  currentGameCommitsRef.on("value", snapshot => {
-   for (let key in snapshot.val()) {
-      let target = snapshot.val()[key].target;
-      targets.addTarget(target);
-      targets.addPlus(target, snapshot.val()[key].plus);
-      targets.addMinus(target, snapshot.val()[key].minus);
+  console.log(currentGame);
+  const currentGameCommitsRef = db.ref(`/commits/${currentGame.id}`);
+
+  targets = currentGame.targets;
+  // スコアを0にする
+  for (let key in targets) {
+    targets[key].plus = 0;
+    targets[key].minus = 0;
+  }
+  
+  currentGameCommitsRef.once("value", snapshot => {
+    for (let commit of snapshot.val()) {
+      targetFnc.addPlus(commit.target, commit.plus);
+      targetFnc.addMinus(commit.target, commit.minus);
     };
+
+    // まとめたデータをcurrentGameに戻す
+    db.ref('/currentGame/targets').update(targets);
     
-  });
+    return true;
 
-  for (let name in targets.getTargets()) {
-    for (let key in currentGame.targets) {
-      if (currentGame.targets[key].name === name) {
-        // まとめたデータをcurrentGameに戻す
-        db.ref(`/currentGame/${currentGame.id}/targets/${key}`).update({
-          plusPoin: targets.getPlus(name),
-          minusPoint: targets.getMinus(name)
-        });
-      } 
-    };
-  };
+  });
   
 };
 
-let targetsFnc = () => {
-  let targets = {};
-  return {
-    getTargets: () => {
-      return targets;
-    },
-    addTarget: (name) => {
-      if (targets[name] === undefined) {
-        targets[name] = {
-          plus: 0, minus: 0
-        };
-      }
-    },
-    addPlus: (name, score) => {
-      targets[name].plus + score;
-    },
-    addMinus: (name, score) => {
-      targets[name].minus + score;
-    },
-    getPlus: name => {
-      return targets[name].plus;
-    },
-    getMinus: name => {
-      return targets[name].minus;
-    }
+let targetFnc = {
+  addPlus: function(name, score) {
+    targets[name].plus = targets[name].plus + score;
+  },
+  addMinus: function(name, score) {
+    targets[name].minus = targets[name].minus + score;
   }
 };
