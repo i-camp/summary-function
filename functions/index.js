@@ -65,7 +65,7 @@ let targetFnc = {
 
   addMinus: function(name, score) {
     targets[name].minus = targets[name].minus + score;
-  }
+  },
 
   calcScore: function(name) {
     const target = targets[name];
@@ -80,11 +80,11 @@ let targetFnc = {
         Math.pow(Math.min(target.plus / target.minus, target.minus / target.plus) * 2, 2) * 100000;
 
     // 最終スコア: 基礎スコア + 比率ボーナス
-    targets[name].score = Math.round(baseScore * multiplier)
-  }
+    targets[name].score = Math.round(baseScore * multiplier);
+  },
 
   refleshOrder: function() {
-      targets.sort((a, b) => a.score < b.score);
-      targets.forEach((target, index)=> target.order = index + 1);
+    targets.sort((a, b) => a.score < b.score);
+    targets.forEach((target, index)=> target.order = index + 1);
   }
 };
