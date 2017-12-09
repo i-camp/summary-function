@@ -1,0 +1,14 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "start": "forever start index.js",
+    "stop": "forever stop index.js",
+    "status": "forever list"
+  },
+  "dependencies": {
+    "firebase": "^4.8.0",
+    "forever": "^0.15.3"
+  },
+  "private": true
+}
