@@ -17,7 +17,7 @@ exports.summaryScore = functions.pubsub.topic('every-minute-tick').onPublish(eve
     ) {
       summaryObservation(currentGame);
     }
-    
+
   });
 
 });
@@ -35,7 +35,7 @@ const summaryObservation = currentGame => {
     targets[key].plus = 0;
     targets[key].minus = 0;
   }
-  
+
   currentGameCommitsRef.once("value", snapshot => {
     for (let commit of snapshot.val()) {
       // currentGameのtargetsにあること
@@ -47,11 +47,11 @@ const summaryObservation = currentGame => {
 
     // まとめたデータをcurrentGameに戻す
     db.ref('/currentGame/targets').update(targets);
-    
+
     return true;
 
   });
-  
+
 };
 
 let targetFnc = {
