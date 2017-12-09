@@ -45,6 +45,10 @@ const summaryObservation = currentGame => {
       }
     };
 
+    // score算出・順位付け
+    targets.forEach(target => targetFnc.calculateScore(target.name));
+    targetFnc.refleshOrder();
+
     // まとめたデータをcurrentGameに戻す
     db.ref('/currentGame/targets').update(targets);
 
@@ -58,7 +62,29 @@ let targetFnc = {
   addPlus: function(name, score) {
     targets[name].plus = targets[name].plus + score;
   },
+
   addMinus: function(name, score) {
     targets[name].minus = targets[name].minus + score;
+  }
+
+  calcScore: function(name) {
+    const target = targets[name];
+    if (target.plus === 0 || target.minus === 0) {
+      return 0;
+    }
+
+    // 基礎スコア: 総ポイントが高いほど上昇
+    const baseScore = (target.plus + target.minus);
+    // 比率ボーナス: plusとminusのバランスが良いほど上昇
+    const balanceScore = 
+        Math.pow(Math.min(target.plus / target.minus, target.minus / target.plus) * 2, 2) * 100000;
+
+    // 最終スコア: 基礎スコア + 比率ボーナス
+    targets[name].score = Math.round(baseScore * multiplier)
+  }
+
+  refleshOrder: function() {
+      targets.sort((a, b) => a.score < b.score);
+      targets.forEach((target, index)=> target.order = index + 1);
   }
 };
