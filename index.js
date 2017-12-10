@@ -48,7 +48,7 @@ const summaryObservation = currentGame => {
         return;
     }
 
-    for (let commit of snapshot.val()) {
+    for (let commit of Object.values(snapshot.val())) {
       // currentGameのtargetsにあること
       if (typeof targets[commit.target] !== "undefined") {
         targetFnc.addPlus(commit.target, commit.plus);
