@@ -94,6 +94,8 @@ let targetFnc = {
   },
 
   refleshOrder: function() {
-      Object.values(targets).sort((a, b) => a.score < b.score).forEach((target, index) => target.order = index + 1);
+    Object.values(targets)
+      .sort((a, b) => b.score - a.score)
+      .forEach((target, index) => target.order = index + 1);
   }
 };
