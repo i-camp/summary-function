@@ -14,17 +14,32 @@ const db = app.database();
 const currentGameRef = db.ref("/currentGame");
 
 setInterval(() => {
+  console.log('interbal start');
+  
   currentGameRef.once("value", snapshot => {
     let currentGame = snapshot.val();
     // ゲームが開始されていること
-    if (
-      currentGame.id !== undefined
-      && currentGame.openedAt !== undefined
-    ) {
-      summaryObservation(currentGame);
+
+    if (currentGame.id === undefined) {
+      console.log('ゲームidがありません')
+      return true;
     }
+
+    if (currentGame.openedAt === undefined) {
+      console.log('まだゲームは開始されていません');
+      return true;
+    }
+
+    if (currentGame.endAt !== undefined) {
+      console.log('ゲームが終了しています');
+    }
+
+    console.log(`${currentGame.id} の集計を開始します`);
+
+    summaryObservation(currentGame);
   
   });
+
 }, 3000);
 
 let targets = {};
@@ -63,7 +78,7 @@ const summaryObservation = currentGame => {
     // まとめたデータをcurrentGameに戻す
     db.ref('/currentGame/targets').update(targets);
 
-    console.log("done");
+    console.log("interval done");
   });
 
 };
