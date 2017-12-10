@@ -110,7 +110,7 @@ let targetFnc = {
 
   refleshOrder: function() {
     Object.values(targets)
-      .sort((a, b) => b.score - a.score)
+      .sort((a, b) => (b.score || 0) - (a.score || 0))
       .forEach((target, index) => target.order = index + 1);
   }
 };
