@@ -44,6 +44,10 @@ const summaryObservation = currentGame => {
   }
 
   currentGameCommitsRef.once("value", snapshot => {
+    if(!snapshot.val()){
+        return;
+    }
+
     for (let commit of snapshot.val()) {
       // currentGameのtargetsにあること
       if (typeof targets[commit.target] !== "undefined") {
