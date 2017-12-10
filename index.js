@@ -94,8 +94,9 @@ let targetFnc = {
 
   calcScore: function(name) {
     const target = targets[name];
-    if (target.plus === 0 || target.minus === 0) {
+    if (target.plus < 1 || target.minus < 1) {
       targets[name].score = 0;
+      return;
     }
 
     // 基礎スコア: 総ポイントが高いほど上昇
