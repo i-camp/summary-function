@@ -102,7 +102,7 @@ let targetFnc = {
     const baseScore = (target.plus + target.minus);
     // 比率ボーナス: plusとminusのバランスが良いほど上昇
     const balanceScore = 
-        Math.pow(Math.min(target.plus / target.minus, target.minus / target.plus) * 2, 2) * 100000;
+        Math.pow(Math.min(target.plus / target.minus, target.minus / target.plus) * 2, 2) * 50000;
 
     // 最終スコア: 基礎スコア + 比率ボーナス
     targets[name].score = Math.round(baseScore + balanceScore);
